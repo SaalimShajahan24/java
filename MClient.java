@@ -1,5 +1,31 @@
 import java.io.*;
 import java.net.*;
+class MRead extends Thread
+{
+	DataInputStream sin;
+	public MRead(DataInputStream sin)
+	{
+		this.sin= sin;
+	}
+	public void run()
+	{
+		try
+		{
+			String str = "";
+			for(;;)
+			{
+				str = sin.readUTF();
+				if(str.equals("quit"))
+					break;
+				System.out.println(str);
+			}
+		}
+		catch(Exception e)
+		{
+			System.out.println(e);
+		}
+	}
+}
 class MClient
 {
 	public static void main(String args[])
@@ -15,10 +41,10 @@ class MClient
 			sin = new DataInputStream(cs.getInputStream());
 			sout = new DataOutputStream(cs.getOutputStream());
 			String str = "";
+			MRead objr = new MRead(sin);
+			objr.start();
 			for(;;)
 			{
-				str = sin.readUTF();
-				System.out.println(str);
 				System.out.println("Enter data/quit to terminate");
 				str = din.readLine();	
 				sout.writeUTF(str);
