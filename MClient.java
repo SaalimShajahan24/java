@@ -1,37 +1,21 @@
 import java.io.*;
 import java.net.*;
-class MRead extends Thread
-{
-	DataInputStream sin;
-	public MRead(DataInputStream sin)
-	{
-		this.sin= sin;
-	}
-	public void run()
-	{
-		try
-		{
-			String str = "";
-			for(;;)
-			{
-				str = sin.readUTF();
-				if(str.equals("quit"))
-					break;
-				System.out.println(str);
-			}
-		}
-		catch(Exception e)
-		{
-			System.out.println(e);
-		}
-	}
-}
 class MClient
 {
+	public static int menu() throws Exception
+	{
+		int ch = 0; 
+		DataInputStream din = new DataInputStream(System.in);
+		System.out.println("Login -> 1\nRegister -> 2\nQuit -> 3\n Enter your Choice->");
+		ch = Integer.parseInt(din.readLine());
+		return ch;	
+	}
 	public static void main(String args[])
 	{
 		Socket cs;
-		DataOutputStream sout;
+		String un,pa,sql="",q;
+		int ch;
+		DataOutputStream sout=null;
 		DataInputStream sin,din;
 
 		try
@@ -41,16 +25,22 @@ class MClient
 			sin = new DataInputStream(cs.getInputStream());
 			sout = new DataOutputStream(cs.getOutputStream());
 			String str = "";
-			MRead objr = new MRead(sin);
-			objr.start();
-			for(;;)
+			for(ch = menu();ch != 3;ch = menu())
 			{
-				System.out.println("Enter data/quit to terminate");
-				str = din.readLine();	
-				sout.writeUTF(str);
-				if(str.equals("quit"))
-					break;
+				
+				System.out.println("Enter user name ");
+				un = din.readLine();
+				System.out.println("Enter Password");
+				pa = din.readLine();
+				if(ch == 2)
+					sql = "rinsert into nlogin values('" + un +  "','" + pa + "')";
+				else if(ch == 1)
+					sql = "lselect * from nlogin where un='" + un +  "' and upass='" + pa + "'";
+				sout.writeUTF(sql);
+				sql = sin.readUTF();
+				System.out.println(sql);
 			}
+			sout.writeUTF("q");
 		}
 		catch(Exception e)
 		{
